@@ -360,7 +360,18 @@ public class BlueThermalPrinterPlugin implements MethodCallHandler, RequestPermi
           result.success(true);
         } catch (Exception ex) {
           Log.e(TAG, ex.getMessage(), ex);
-          result.error("connect_error", ex.getMessage(), exceptionToString(ex));
+          try {
+            Log.e("","trying fallback...");
+            socket =(BluetoothSocket) device.getClass().getMethod("createRfcommSocket", new Class[] {int.class}).invoke(device,1);
+            socket.connect();
+            THREAD = new ConnectedThread(socket);
+            THREAD.start();
+            result.success(true);
+            Log.e("","Connected");
+          } catch(Exception ex2) {
+            Log.e(TAG, ex2.getMessage(), ex2);
+            result.error("connect_error", ex2.getMessage(), exceptionToString(ex2));
+          }
         }
       } catch (Exception ex) {
         Log.e(TAG, ex.getMessage(), ex);
